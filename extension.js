@@ -15,6 +15,10 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GdkPixbuf from 'gi://GdkPixbuf';
+// Gdk 4.0 is used exclusively for Gdk.cairo_set_source_pixbuf() in the
+// St.DrawingArea repaint handler. GNOME Shell 45+ uses GTK4's rendering
+// stack, so Gdk 4.0 is compatible with Clutter. Same pattern used by
+// background-logo@fedorahosted.org (Fedora's built-in shell extension).
 import Gdk from 'gi://Gdk?version=4.0';
 import Clutter from 'gi://Clutter';
 import St from 'gi://St';
@@ -184,6 +188,7 @@ class StickerManager {
         this._settings = settings;
         this._widgets = new Map();
         this._reloadTimeoutId = 0;
+        this._monitorHandlerId = 0;
 
         const stickers = _readStickers();
         for (const s of stickers) this._createWidget(s);
@@ -191,10 +196,11 @@ class StickerManager {
 
         const f = Gio.File.new_for_path(STICKERS_FILE);
         this._monitor = f.monitor(Gio.FileMonitorFlags.NONE, null);
-        this._monitor.connect('changed', (mon, file, other, eventType) => {
-            if (eventType === Gio.FileMonitorEvent.CHANGES_DONE_HINT)
-                this._scheduleReload();
-        });
+        this._monitorHandlerId = this._monitor.connect('changed',
+            (mon, file, other, eventType) => {
+                if (eventType === Gio.FileMonitorEvent.CHANGES_DONE_HINT)
+                    this._scheduleReload();
+            });
     }
 
     // Debounced reload: cancels any pending reload, schedules a new one.
@@ -239,7 +245,12 @@ class StickerManager {
             GLib.source_remove(this._reloadTimeoutId);
             this._reloadTimeoutId = 0;
         }
-        if (this._monitor) this._monitor.cancel();
+        if (this._monitor) {
+            if (this._monitorHandlerId > 0)
+                this._monitor.disconnect(this._monitorHandlerId);
+            this._monitor.cancel();
+            this._monitor = null;
+        }
         for (const w of this._widgets.values()) w.destroy();
         this._widgets.clear();
     }

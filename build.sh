@@ -8,10 +8,29 @@ UUID="sticky-media@uwu"
 build() {
     echo "→ Compiling schemas…"
     glib-compile-schemas schemas/
-    echo "→ Packaging zip…"
+    echo "→ Packaging zip (ego-ready, no docs, no build script)…"
     rm -f "../${UUID}.zip"
-    zip -r "../${UUID}.zip" . -x "schemas/gschemas.compiled" ".gitignore" > /dev/null
+    zip -r "../${UUID}.zip" . \
+        -x "schemas/gschemas.compiled" \
+        -x ".gitignore" \
+        -x "ARCHITECTURE.md" \
+        -x "build.sh" \
+        -x "LICENSE" \
+        -x "README.md" \
+        > /dev/null
     echo "✓ Build complete: ../${UUID}.zip"
+}
+
+release() {
+    echo "→ Compiling schemas…"
+    glib-compile-schemas schemas/
+    echo "→ Packaging zip (with docs for GitHub releases)…"
+    rm -f "../${UUID}.zip"
+    zip -r "../${UUID}.zip" . \
+        -x "schemas/gschemas.compiled" \
+        -x ".gitignore" \
+        > /dev/null
+    echo "✓ Release complete: ../${UUID}.zip"
 }
 
 install() {
@@ -32,11 +51,13 @@ clean() {
 
 case "${1:-build}" in
     build)   build ;;
+    release) release ;;
     install) install ;;
     clean)   clean ;;
     *)
-        echo "Usage: $0 {build|install|clean}"
-        echo "  build   — compile schemas + create zip"
+        echo "Usage: $0 {build|release|install|clean}"
+        echo "  build   — compile schemas + create zip for ego submission"
+        echo "  release — compile schemas + create zip with docs for GitHub"
         echo "  install — copy to ~/.local/share/gnome-shell/extensions/"
         echo "  clean   — remove zip + compiled schema"
         ;;

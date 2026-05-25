@@ -52,4 +52,4 @@ See [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## License
 
-MIT — free and open source
+GNU General Public License v2.0 or later — free and open source
