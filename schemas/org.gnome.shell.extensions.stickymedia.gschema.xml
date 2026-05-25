@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.stickymedia"
+          path="/org/gnome/shell/extensions/stickymedia/">
+
+    <key name="selected-folder" type="s">
+      <default>''</default>
+      <summary>Last selected media folder path</summary>
+    </key>
+
+  </schema>
+</schemalist>

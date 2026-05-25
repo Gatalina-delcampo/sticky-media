@@ -1,0 +1,8 @@
+{
+  "name": "Sticky Media",
+  "description": "Place floating images and animated GIFs on your desktop",
+  "uuid": "sticky-media@uwu",
+  "shell-version": ["45", "46", "47", "48", "49", "50"],
+  "version": 1,
+  "url": ""
+}
